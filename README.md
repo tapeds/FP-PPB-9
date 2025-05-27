@@ -18,3 +18,7 @@ samples, guidance on mobile development, and a full API reference.
 ## Use Case Diagram
 
 ![usecase](https://github.com/user-attachments/assets/aa1a0e61-6746-4c0d-84bf-17390345b996)
+
+## Activity Diagram
+
+![activity](https://github.com/user-attachments/assets/f40a322e-26b3-4577-8736-a9fe9b2b87e9)
