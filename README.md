@@ -22,3 +22,7 @@ samples, guidance on mobile development, and a full API reference.
 ## Activity Diagram
 
 ![activity](https://github.com/user-attachments/assets/f40a322e-26b3-4577-8736-a9fe9b2b87e9)
+
+## Architechture
+
+![architechture](https://github.com/user-attachments/assets/fccc0f50-d1a1-43b4-b850-c78718c31b78)
