@@ -76,6 +76,17 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.settings_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        Navigator.pushNamed(context, 'settings');
+                      },
+                    ),
+                  ],
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
@@ -132,6 +143,7 @@ class HomeScreen extends StatelessWidget {
               'Today\'s Progress',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(

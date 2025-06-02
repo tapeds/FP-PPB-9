@@ -2,6 +2,7 @@ import 'package:fp_ppb/screens/home.dart';
 import 'package:fp_ppb/screens/login.dart';
 import 'package:fp_ppb/screens/register.dart';
 import 'package:fp_ppb/screens/habits.dart';
+import 'package:fp_ppb/screens/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         'home': (context) => const MainScreen(),
         'login': (context) => const LoginScreen(),
         'register': (context) => const RegisterScreen(),
+        'settings': (context) => const SettingsScreen(),
       },
     );
   }
