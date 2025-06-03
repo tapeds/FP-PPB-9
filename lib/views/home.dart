@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fp_ppb/screens/login.dart';
+import 'package:fp_ppb/views/login.dart';
+import 'package:fp_ppb/services/habit_service.dart';
+import 'package:fp_ppb/models/habit.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -98,9 +100,7 @@ class HomeScreen extends StatelessWidget {
                         const SizedBox(height: 24),
                         _buildTodayProgress(),
                         const SizedBox(height: 16),
-                        _buildTodayHabits(),
-                        const SizedBox(height: 16),
-                        _buildQuickActions(context),
+                        _buildTodayHabits(context),
                       ],
                     ),
                   ),
@@ -197,59 +197,114 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTodayHabits() {
+  Widget _buildTodayHabits(BuildContext context) {
+    final habitService = HabitService();
+    // Get current day index (0 = Monday, 6 = Sunday)
+    final now = DateTime.now();
+    final dayIndex = (now.weekday - 1) % 7;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              'Today\'s Habits',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            TextButton.icon(
-              onPressed: () {
-                // TODO: Navigate to habits screen
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Add'),
-            ),
-          ],
+        const Text(
+          'Today\'s Habits',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 4),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: 5,
-          padding: EdgeInsets.zero,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            final isCompleted = index < 3;
-            final time = '${8 + (index % 3)}:00 AM';
+        const SizedBox(height: 8),
+        StreamBuilder<List<Habit>>(
+          stream: habitService.getHabitsForDay(dayIndex),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            }
 
-            return Card(
-              margin: const EdgeInsets.only(bottom: 4),
-              child: ListTile(
-                leading: IconButton(
-                  icon: Icon(
-                    isCompleted
-                        ? Icons.check_circle
-                        : Icons.check_circle_outline,
-                    color: isCompleted ? Colors.green : Colors.grey,
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final habits = snapshot.data!;
+
+            // Filter habits for the current day
+            final todayHabits =
+                habits
+                    .where(
+                      (habit) =>
+                          habit.schedule.length > dayIndex &&
+                          habit.schedule[dayIndex],
+                    )
+                    .toList();
+
+            if (todayHabits.isEmpty) {
+              return Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.checklist_outlined,
+                          size: 48,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'No habits scheduled for today',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                  onPressed: () {
-                    // TODO: Toggle habit completion
-                  },
                 ),
-                title: Text('Habit ${index + 1}'),
-                subtitle: Text(time),
-                trailing: IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () {
-                    // TODO: Show habit options
-                  },
-                ),
-              ),
+              );
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: todayHabits.length,
+              padding: EdgeInsets.zero,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final habit = todayHabits[index];
+                final time = _formatTimeOfDay(habit.reminderTime);
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 4),
+                  child: ListTile(
+                    leading: IconButton(
+                      icon: Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.grey[600],
+                      ),
+                      onPressed: () {
+                        // TODO: Implement habit completion toggle
+                      },
+                    ),
+                    title: Text(habit.name),
+                    subtitle: Text(time),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${habit.streak} days',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.more_vert),
+                          onPressed: () {
+                            // TODO: Show habit options
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -257,57 +312,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Quick Actions',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _buildActionButton(
-                context,
-                'Add Habit',
-                Icons.add_task,
-                () {
-                  // TODO: Navigate to add habit
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: _buildActionButton(
-                context,
-                'View All',
-                Icons.view_list,
-                () {
-                  // TODO: Navigate to habits screen
-                },
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton(
-    BuildContext context,
-    String label,
-    IconData icon,
-    VoidCallback onPressed,
-  ) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-      ),
-    );
+  String _formatTimeOfDay(TimeOfDay time) {
+    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
+    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
+    return '${hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')} $period';
   }
 }

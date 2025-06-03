@@ -1,8 +1,8 @@
-import 'package:fp_ppb/screens/home.dart';
-import 'package:fp_ppb/screens/login.dart';
-import 'package:fp_ppb/screens/register.dart';
-import 'package:fp_ppb/screens/habits.dart';
-import 'package:fp_ppb/screens/settings.dart';
+import 'package:fp_ppb/views/home.dart';
+import 'package:fp_ppb/views/login.dart';
+import 'package:fp_ppb/views/register.dart';
+import 'package:fp_ppb/views/habits.dart';
+import 'package:fp_ppb/views/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
