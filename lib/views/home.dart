@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fp_ppb/views/login.dart';
 import 'package:fp_ppb/services/habit_service.dart';
 import 'package:fp_ppb/models/habit.dart';
+import 'package:fp_ppb/views/log_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -294,14 +295,16 @@ class HomeScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.more_vert),
-                          onPressed: () {
-                            // TODO: Show habit options
-                          },
-                        ),
                       ],
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LogScreen(habit: habit),
+                        ),
+                      );
+                    },
                   ),
                 );
               },
